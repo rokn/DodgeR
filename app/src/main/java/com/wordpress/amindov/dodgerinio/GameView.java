@@ -2,18 +2,24 @@ package com.wordpress.amindov.dodgerinio;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 /**
  * Created by Antonio Mindov on 5/22/2016.
  */
-public class GameView extends SurfaceView implements Runnable {
-
+public class GameView extends SurfaceView implements Runnable, SensorEventListener {
+    SensorManager sensorManager;
     Thread gameThread;
     SurfaceHolder holder;
     Canvas canvas;
     State currState;
+    int clearColor;
 
     volatile boolean playing;
 
@@ -22,6 +28,11 @@ public class GameView extends SurfaceView implements Runnable {
         holder = getHolder();
         playing = true;
         currState = null;
+        clearColor = Color.parseColor(getContext().getString(R.string.clearColor));
+
+        // Register
+        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -55,6 +66,8 @@ public class GameView extends SurfaceView implements Runnable {
         if(holder.getSurface().isValid()){
             canvas = holder.lockCanvas();
 
+            canvas.drawColor(clearColor);
+
             if(currState != null) {
                 currState.draw(canvas);
             }
@@ -84,6 +97,18 @@ public class GameView extends SurfaceView implements Runnable {
         }
 
         currState = newState;
+        currState.create();
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(currState != null) {
+            currState.onSensorChanged(event);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
 }
