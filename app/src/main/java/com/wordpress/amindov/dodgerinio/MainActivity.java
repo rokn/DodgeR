@@ -2,10 +2,13 @@ package com.wordpress.amindov.dodgerinio;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
 public class MainActivity extends AppCompatActivity {
+
+    public final String TAG = getClass().getName();
 
     private GameView gameView;
 
@@ -30,5 +33,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         gameView.pause();
+        Log.i(TAG, "Pause");
     }
 }

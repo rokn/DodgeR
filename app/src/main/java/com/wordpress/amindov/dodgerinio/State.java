@@ -1,9 +1,16 @@
 package com.wordpress.amindov.dodgerinio;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.Point;
+import android.graphics.RectF;
 import android.hardware.SensorEvent;
+import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,19 +19,29 @@ import java.util.List;
  */
 public abstract class State {
 
-    private GameView owner;
-    private List<GameObject> gameObjects;
+    public String TAG = getClass().getName();
+
+    protected GameView owner;
+    protected RectF displayRect;
+    private LinkedList<GameObject> gameObjects;
+    private List<GameObject> removeList;
     private boolean created;
 
     public State(GameView owner){
         this.owner = owner;
         gameObjects = new LinkedList<>();
+        removeList = new ArrayList<>();
         created = false;
     }
 
     public void create() {
-        for (GameObject obj :
-                gameObjects) {
+        WindowManager wm = (WindowManager) owner.getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        displayRect = new RectF(0, 0, size.x, size.y);
+
+        for (GameObject obj : gameObjects) {
             obj.create();
         }
 
@@ -32,29 +49,35 @@ public abstract class State {
     }
 
     public void update(float deltaTime) {
-        for (GameObject obj :
-                gameObjects) {
+        for (GameObject obj : gameObjects) {
             obj.update(deltaTime);
         }
+
+        for (GameObject obj : removeList) {
+            gameObjects.remove(obj);
+        }
+
+        removeList.clear();
+
+        Log.i(TAG, Integer.toString(gameObjects.size()));
     }
 
     public void draw(Canvas canvas) {
-        for (GameObject obj :
-                gameObjects) {
-            obj.draw(canvas);
+        for (GameObject obj : gameObjects) {
+            if(!obj.isDestroyed()) {
+                obj.draw(canvas);
+            }
         }
     }
 
     public void destroy() {
-        for (GameObject obj :
-                gameObjects) {
+        for (GameObject obj : gameObjects) {
             obj.destroy();
         }
     }
 
     public void onSensorChanged(SensorEvent event) {
-        for (GameObject obj :
-                gameObjects) {
+        for (GameObject obj : gameObjects) {
             obj.onSensorChanged(event);
         }
     }
@@ -66,10 +89,23 @@ public abstract class State {
             object.create();
         }
 
-        gameObjects.add(object);
+        gameObjects.addFirst(object);
+    }
+
+    public void removeGameObject(GameObject object) {
+        object.destroy();
+        removeList.add(object);
     }
 
     public Resources getResources() {
         return owner.getResources();
+    }
+
+    public GameView getOwner() {
+        return owner;
+    }
+
+    public RectF getDisplayRect() {
+        return displayRect;
     }
 }

@@ -8,7 +8,15 @@ import android.hardware.SensorEvent;
  */
 public abstract class GameObject {
 
+    private static long IdCounter = 0;
+
     protected State owner;
+    private long id;
+    private boolean destroyed;
+
+    public GameObject() {
+        id = IdCounter++;
+    }
 
     public abstract void create();
 
@@ -16,7 +24,9 @@ public abstract class GameObject {
 
     public abstract void draw(Canvas canvas);
 
-    public abstract void destroy();
+    public void destroy() {
+        destroyed = true;
+    }
 
     public abstract void onSensorChanged(SensorEvent event);
 
@@ -26,4 +36,23 @@ public abstract class GameObject {
 
     public void setOwner(State owner) { this.owner = owner; }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GameObject that = (GameObject) o;
+
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
+    }
 }

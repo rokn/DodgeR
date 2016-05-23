@@ -6,27 +6,27 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.RectF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
+import android.util.Log;
 
 /**
  * Created by Antonio Mindov on 5/22/2016.
  */
-public class Player extends GameObject {
+public class Player extends Transformable {
 
-    private Bitmap sprite;
-    private Paint paint;
-    private PointF position;
-    private PointF velocity;
-    private float maxVelocity;
-    private final float defaultMaxVelocity = 300.0f;
+    public String TAG = getClass().getName();
 
     // At this value of accelerometer velocity is max
-    final float accelerometerThreshold = 9.81f;
+    private final float accelerometerThreshold = 7.5f;
+    private final float defaultMaxVelocity = 500.0f;
+
+    private Paint paint;
 
     public Player() {
+        super();
     }
 
     @Override
@@ -34,25 +34,23 @@ public class Player extends GameObject {
         sprite = BitmapFactory.decodeResource(owner.getResources(), R.drawable.player);
         paint = new Paint();
         setColor(Color.parseColor(owner.getResources().getString(R.string.playerColor)));
-        position = new PointF();
-        velocity = new PointF();
-        maxVelocity = defaultMaxVelocity;
+        setMaxVelocity(defaultMaxVelocity);
+        rect = new RectF(200,200, 200 + sprite.getWidth(), 200 + sprite.getHeight());
     }
 
     @Override
     public void update(float deltaTime) {
-        position.x += velocity.x * deltaTime;
-        position.y += velocity.y * deltaTime;
+        super.update(deltaTime);
     }
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(sprite, position.x, position.y, paint);
+        canvas.drawBitmap(sprite, rect.left, rect.top, paint);
     }
 
     @Override
     public void destroy() {
-
+        super.destroy();
     }
 
     @Override
@@ -60,23 +58,11 @@ public class Player extends GameObject {
         if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             PointF newVelocity = new PointF();
 
-            newVelocity.x = -event.values[0] * maxVelocity / accelerometerThreshold;
-            newVelocity.y = event.values[1]  * maxVelocity / accelerometerThreshold;
+            newVelocity.x = -event.values[0] * getMaxVelocity() / accelerometerThreshold;
+            newVelocity.y = event.values[1]  * getMaxVelocity() / accelerometerThreshold;
 
             setVelocity(newVelocity);
         }
-    }
-
-    public void setVelocity(PointF velocity) {
-        this.velocity = velocity;
-
-        //clamping
-        this.velocity.x = Math.max(-maxVelocity, Math.min(maxVelocity, this.velocity.x));
-        this.velocity.y = Math.max(-maxVelocity, Math.min(maxVelocity, this.velocity.y));
-    }
-
-    public PointF getVelocity() {
-        return velocity;
     }
 
     public void setColor(int color) {

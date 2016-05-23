@@ -1,12 +1,15 @@
 package com.wordpress.amindov.dodgerinio;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.SystemClock;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -14,12 +17,15 @@ import android.view.SurfaceView;
  * Created by Antonio Mindov on 5/22/2016.
  */
 public class GameView extends SurfaceView implements Runnable, SensorEventListener {
-    SensorManager sensorManager;
-    Thread gameThread;
-    SurfaceHolder holder;
-    Canvas canvas;
-    State currState;
-    int clearColor;
+
+    public final String TAG = getClass().getName();
+
+    private SensorManager sensorManager;
+    private Thread gameThread;
+    private SurfaceHolder holder;
+    private Canvas canvas;
+    private State currState;
+    private int clearColor;
 
     volatile boolean playing;
 
@@ -40,10 +46,10 @@ public class GameView extends SurfaceView implements Runnable, SensorEventListen
         final float deltaTime = 0.016f;
         float currTime;
         float addedTime = 0.0f;
-        float oldTime = 0.0f;
+        float oldTime = SystemClock.elapsedRealtime() / 1000.0f;
 
         while (playing) {
-            currTime = System.currentTimeMillis() / 1000.0f;
+            currTime = SystemClock.elapsedRealtime() / 1000.0f;
             addedTime += currTime - oldTime;
             oldTime = currTime;
 
@@ -77,10 +83,13 @@ public class GameView extends SurfaceView implements Runnable, SensorEventListen
     }
 
     public void pause() {
-        while(playing) {
+        boolean stopped = false;
+        playing = false;
+
+        while(!stopped) {
             try {
                 gameThread.join();
-                playing = false;
+                stopped = true;
             }catch (InterruptedException ignored){}
         }
     }
@@ -109,6 +118,5 @@ public class GameView extends SurfaceView implements Runnable, SensorEventListen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 }
