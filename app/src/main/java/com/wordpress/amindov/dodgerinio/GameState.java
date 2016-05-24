@@ -13,6 +13,7 @@ public class GameState extends State {
 
     private Player player;
     private boolean gameOver = false;
+    private Pattern basicPattern;
 
     public GameState(GameView owner) {
         super(owner);
@@ -24,7 +25,15 @@ public class GameState extends State {
         player = new Player();
         addGameObject(player);
 
-        addGameObject(new Block(new PointF(0.0f,0.0f), new PointF(0.0f,20.0f), 0.0f));
+        basicPattern = new Pattern();
+        basicPattern.setMultiplier(1.0f);
+        basicPattern.addEntry(75.0f, new PointF(0.0f, -50.0f), new PointF(0.0f, 300.0f), 0.0f);
+//        basicPattern.addEntry(50.0f, new PointF(300.0f, -50.0f), new PointF(0.0f, 300.0f), 0.0f);
+//        basicPattern.addEntry(50.0f, new PointF(160.0f, -150.0f), new PointF(0.0f, 300.0f), 0.0f);
+//        basicPattern.addEntry(50.0f, new PointF(460.0f, -150.0f), new PointF(0.0f, 300.0f), 0.0f);
+//        basicPattern.addEntry(50.0f, new PointF(120.0f, -250.0f), new PointF(0.0f, 300.0f), 0.0f);
+//        basicPattern.addEntry(50.0f, new PointF(420.0f, -250.0f), new PointF(0.0f, 300.0f), 0.0f);
+        basicPattern.play(this);
 
         gameOver = false;
 
@@ -34,6 +43,10 @@ public class GameState extends State {
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
+
+        if(basicPattern.isDone()) {
+            basicPattern.play(this);
+        }
 
         if(!RectF.intersects(displayRect, player.getRect()) && !gameOver) {
             gameOver = true;

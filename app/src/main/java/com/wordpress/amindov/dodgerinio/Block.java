@@ -1,5 +1,7 @@
 package com.wordpress.amindov.dodgerinio;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,23 +15,37 @@ import android.hardware.SensorEvent;
  */
 public class Block extends Transformable{
 
+    private static Bitmap DefaultBlock;
+    private static Bitmap ScoreBlock;
+
+
     private PointF startPos;
     private boolean entered;
     private Paint redPaint;
+    private float screenPercent;
+    private boolean vertical;
 
-    public Block(PointF position, PointF velocity, float rotation) {
+    public Block(float percent, PointF position, PointF velocity, float rotation) {
         startPos = position;
         entered = false;
+        screenPercent = percent;
 
         this.rect = new RectF(position.x, position.y, 0,0);
         setMaxVelocity(Math.max(velocity.x, velocity.y));
         setVelocity(velocity);
         setRotation(rotation);
+
+        vertical = Math.abs(velocity.x) < Math.abs(velocity.y);
+    }
+
+    public static void loadBlocks(Resources resources) {
+        DefaultBlock = BitmapFactory.decodeResource(resources, R.drawable.block);
     }
 
     @Override
     public void create() {
-        sprite = BitmapFactory.decodeResource(owner.getResources(), R.drawable.block);
+        int scale = (int)(((vertical) ? owner.getDisplayRect().width() : owner.getDisplayRect().height()) * screenPercent / 100.0f);
+        sprite = Bitmap.createScaledBitmap(DefaultBlock, scale, DefaultBlock.getHeight(), false);
         rect.right = rect.left + sprite.getWidth();
         rect.bottom = rect.top + sprite.getHeight();
         updateSprite();

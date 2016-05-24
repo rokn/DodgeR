@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        Block.loadBlocks(getResources());
         gameView = new GameView(this);
         gameView.changeState(new GameState(gameView));
         setContentView(gameView);
