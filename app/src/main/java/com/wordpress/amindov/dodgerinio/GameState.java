@@ -24,7 +24,7 @@ public class GameState extends State {
         player = new Player();
         addGameObject(player);
 
-        addGameObject(new Block(new PointF(0.0f,0.0f), new PointF(0.0f,300.0f), 0.0f));
+        addGameObject(new Block(new PointF(0.0f,0.0f), new PointF(0.0f,20.0f), 0.0f));
 
         gameOver = false;
 

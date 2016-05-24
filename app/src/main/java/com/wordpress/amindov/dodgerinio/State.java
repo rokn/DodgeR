@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.android.internal.util.Predicate;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,8 +60,6 @@ public abstract class State {
         }
 
         removeList.clear();
-
-        Log.i(TAG, Integer.toString(gameObjects.size()));
     }
 
     public void draw(Canvas canvas) {
@@ -107,5 +107,17 @@ public abstract class State {
 
     public RectF getDisplayRect() {
         return displayRect;
+    }
+
+    public List<GameObject> getGameObjects(Predicate<GameObject> predicate) {
+        List<GameObject> result = new LinkedList<>();
+
+        for (GameObject obj : gameObjects) {
+            if(predicate.apply(obj)) {
+                result.add(obj);
+            }
+        }
+
+        return result;
     }
 }

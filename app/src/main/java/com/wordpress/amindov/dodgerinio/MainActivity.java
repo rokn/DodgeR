@@ -9,6 +9,7 @@ import android.view.WindowManager;
 public class MainActivity extends AppCompatActivity {
 
     public final String TAG = getClass().getName();
+    public final static boolean DEBUG = false;
 
     private GameView gameView;
 

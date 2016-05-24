@@ -2,6 +2,8 @@ package com.wordpress.amindov.dodgerinio;
 
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.hardware.SensorEvent;
@@ -13,6 +15,7 @@ public class Block extends Transformable{
 
     private PointF startPos;
     private boolean entered;
+    private Paint redPaint;
 
     public Block(PointF position, PointF velocity, float rotation) {
         startPos = position;
@@ -30,6 +33,8 @@ public class Block extends Transformable{
         rect.right = rect.left + sprite.getWidth();
         rect.bottom = rect.top + sprite.getHeight();
         updateSprite();
+        redPaint = new Paint();
+        redPaint.setColor(Color.parseColor("#FF0000"));
     }
 
     @Override
@@ -48,6 +53,10 @@ public class Block extends Transformable{
     @Override
     public void draw(Canvas canvas) {
         canvas.drawBitmap(sprite, rect.left, rect.top, null);
+
+        if(MainActivity.DEBUG) {
+            canvas.drawRect(rect, redPaint);
+        }
     }
 
     @Override
