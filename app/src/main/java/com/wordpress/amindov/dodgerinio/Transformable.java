@@ -77,6 +77,7 @@ public abstract class Transformable extends GameObject{
 
     protected void updateSprite() {
         if(sprite != null) {
+            sprite = Bitmap.createScaledBitmap(sprite, (int) rect.width(), (int) rect.height(), false);
             sprite = Helper.RotateBitmap(sprite, rotation);
         }
     }

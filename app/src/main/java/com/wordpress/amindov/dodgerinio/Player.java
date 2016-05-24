@@ -1,6 +1,5 @@
 package com.wordpress.amindov.dodgerinio;
 
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,7 +9,6 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
-import android.util.Log;
 
 import com.android.internal.util.Predicate;
 
@@ -20,7 +18,7 @@ import java.util.List;
 /**
  * Created by Antonio Mindov on 5/22/2016.
  */
-public class Player extends Transformable {
+public class Player extends Transformable implements ScoreNotifier{
 
     public String TAG = getClass().getName();
 
@@ -31,7 +29,14 @@ public class Player extends Transformable {
     private Paint paint;
     private Paint redPaint;
     private float radius;
+    private int score;
     List<PointF> myPoly;
+    List<Observer> scoreObservers;
+
+    public Player() {
+        scoreObservers = new ArrayList<>();
+        myPoly = new ArrayList<>(4);
+    }
 
     @Override
     public void create() {
@@ -44,7 +49,7 @@ public class Player extends Transformable {
         PointF center = new PointF(owner.getDisplayRect().width()/2.0f, owner.getDisplayRect().height()/2.0f);
         rect = new RectF(center.x, center.y, center.x + sprite.getWidth(), center.y + sprite.getHeight());
         radius = sprite.getWidth() / 2.0f;
-        myPoly = new ArrayList<>(4);
+        setScore(0);
     }
 
     @Override
@@ -97,6 +102,19 @@ public class Player extends Transformable {
         paint.setColorFilter(new LightingColorFilter(color, 0));
     }
 
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+        notifyObservers();
+    }
+
+    public void addScore(int score) {
+        setScore(getScore() + score);
+    }
+
     private void checkForCollision(PointF prevPos) {
         List<GameObject> blocks = owner.getGameObjects(new Predicate<GameObject>() {
             @Override
@@ -141,37 +159,80 @@ public class Player extends Transformable {
                 boolean intersect;
 
                 if(moveDistance > Math.min(block.rect.width(), block.rect.height())) {
+                    //region NAABB
                     checker.setB(block.rect);
                     intersect = checker.isPolygonsIntersecting();
 
-                    if(intersect) {
+                    if(intersect && !block.isScoreBlock()) {
                         setPosition(prevPos);
+                        float wy = (rect.width() + block.rect.width()) * (rect.centerY() - block.rect.centerY());
+                        float hx = (rect.height() + block.rect.height()) * (rect.centerX() - block.rect.centerX());
+
+                        if (wy > hx) {
+                            if (wy > -hx) {
+                                currPos.y = block.rect.bottom + radius;
+                            } else {
+                                currPos.x = block.rect.left - radius;
+                            }
+                        } else {
+                            if (wy > -hx) {
+                                currPos.x = block.rect.right + radius;
+                            } else {
+                                currPos.y = block.rect.top - radius;
+                            }
+                        }
                     }
+                    //endregion
                 } else {
-                    intersect = Helper.IsIntersected(currPos, radius, block.rect);
+                    //region Rect to Rect
+                    RectF area = new RectF(rect);
+                    intersect = area.intersect(block.rect);
+
+                    if(intersect && !block.isScoreBlock()) {
+                        if(area.width() >= area.height()) {
+                            if(rect.centerY() < block.rect.centerY()) {
+                                currPos.y = block.rect.top - radius;
+                            }
+                            else {
+                                currPos.y = block.rect.bottom + radius;
+                            }
+                        }
+                        else {
+                            if(rect.centerX() < block.rect.centerX()) {
+                                currPos.x = block.rect.left - radius;
+                            }
+                            else {
+                                currPos.x = block.rect.right + radius;
+                            }
+                        }
+                    }
+                    //endregion
                 }
 
-                if(intersect) {
-                    float wy = (rect.width() + block.rect.width()) * (rect.centerY() - block.rect.centerY());
-                    float hx = (rect.height() + block.rect.height()) * (rect.centerX() - block.rect.centerX());
-
-                    if (wy > hx) {
-                        if (wy > -hx) {
-                            currPos.y = block.rect.bottom + radius;
-                        } else {
-                            currPos.x = block.rect.left - radius;
-                        }
-                    } else {
-                        if (wy > -hx) {
-                            currPos.x = block.rect.right + radius;
-                        } else {
-                            currPos.y = block.rect.top - radius;
-                        }
-                    }
+                if(intersect && block.isScoreBlock()) {
+                    owner.removeGameObject(block);
+                    addScore(1);
                 }
             }
         }
 
         setPosition(new PointF(currPos.x - radius, currPos.y - radius));
+    }
+
+    @Override
+    public void attach(Observer observer) {
+        scoreObservers.add(observer);
+    }
+
+    @Override
+    public void detach(Observer observer) {
+        scoreObservers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        for (Observer observer : scoreObservers) {
+            observer.updateObserver();
+        }
     }
 }

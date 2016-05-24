@@ -15,9 +15,9 @@ import android.hardware.SensorEvent;
  */
 public class Block extends Transformable{
 
-    private static Bitmap DefaultBlock;
-    private static Bitmap ScoreBlock;
-
+    private static Bitmap DefaultBlockSprite;
+    private static Bitmap ScoreBlockSprite;
+    private static float MinSide = 50.0f;
 
     private PointF startPos;
     private boolean entered;
@@ -25,7 +25,9 @@ public class Block extends Transformable{
     private float screenPercent;
     private boolean vertical;
 
-    public Block(float percent, PointF position, PointF velocity, float rotation) {
+    private boolean scoreBlock;
+
+    public Block(float percent, PointF position, PointF velocity) {
         startPos = position;
         entered = false;
         screenPercent = percent;
@@ -33,24 +35,48 @@ public class Block extends Transformable{
         this.rect = new RectF(position.x, position.y, 0,0);
         setMaxVelocity(Math.max(velocity.x, velocity.y));
         setVelocity(velocity);
-        setRotation(rotation);
+        setRotation(0);
 
         vertical = Math.abs(velocity.x) < Math.abs(velocity.y);
-    }
 
-    public static void loadBlocks(Resources resources) {
-        DefaultBlock = BitmapFactory.decodeResource(resources, R.drawable.block);
+        redPaint = new Paint();
+        redPaint.setColor(Color.parseColor("#FF0000"));
     }
 
     @Override
     public void create() {
-        int scale = (int)(((vertical) ? owner.getDisplayRect().width() : owner.getDisplayRect().height()) * screenPercent / 100.0f);
-        sprite = Bitmap.createScaledBitmap(DefaultBlock, scale, DefaultBlock.getHeight(), false);
-        rect.right = rect.left + sprite.getWidth();
-        rect.bottom = rect.top + sprite.getHeight();
-        updateSprite();
-        redPaint = new Paint();
-        redPaint.setColor(Color.parseColor("#FF0000"));
+        float width;
+        float height;
+
+        if(vertical) {
+            if(isScoreBlock()) {
+                width = owner.getDisplayRect().width();
+            } else {
+                width = owner.getDisplayRect().width() * screenPercent / 100.0f;
+            }
+
+            height = MinSide;
+        } else {
+            width = MinSide;
+
+            if(isScoreBlock()) {
+                height = owner.getDisplayRect().height();
+            } else {
+                height = owner.getDisplayRect().width() * screenPercent / 100.0f;
+            }
+        }
+
+        rect.right = rect.left + width;
+        rect.bottom = rect.top + height;
+
+        if(!isScoreBlock()) {
+            sprite = DefaultBlockSprite.copy(DefaultBlockSprite.getConfig(), false);
+            updateSprite();
+        }
+    }
+
+    public static void loadBlocks(Resources resources) {
+        DefaultBlockSprite = BitmapFactory.decodeResource(resources, R.drawable.block);
     }
 
     @Override
@@ -68,7 +94,9 @@ public class Block extends Transformable{
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(sprite, rect.left, rect.top, null);
+        if(!isScoreBlock()) {
+            canvas.drawBitmap(sprite, rect.left, rect.top, null);
+        }
 
         if(MainActivity.DEBUG) {
             canvas.drawRect(rect, redPaint);
@@ -87,5 +115,13 @@ public class Block extends Transformable{
 
     private void reset() {
         owner.removeGameObject(this);
+    }
+
+    public boolean isScoreBlock() {
+        return scoreBlock;
+    }
+
+    public void setScoreBlock(boolean scoreBlock) {
+        this.scoreBlock = scoreBlock;
     }
 }
