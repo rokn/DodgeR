@@ -13,8 +13,7 @@ public class ScoreViewer extends TextViewer implements Observer{
     @Override
     public void create() {
         super.create();
-        textPaint.setTextSize(100.0f);
-        textPaint.setTextAlign(Paint.Align.CENTER);
+        setTextSize(100.0f);
         setPosition(new PointF(owner.getDisplayRect().width() / 2.0f, 120.0f));
         setText("0");
     }

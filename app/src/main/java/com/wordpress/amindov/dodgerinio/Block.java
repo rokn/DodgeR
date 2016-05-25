@@ -33,7 +33,7 @@ public class Block extends Transformable{
         entered = false;
         screenPercent = percent;
 
-        setMaxVelocity(Math.max(velocity.x, velocity.y));
+        setMaxVelocity(Math.max(Math.abs(velocity.x), Math.abs(velocity.y)));
         setVelocity(velocity);
         setRotation(0);
 

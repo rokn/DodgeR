@@ -65,6 +65,7 @@ public class Player extends Transformable implements ScoreNotifier{
             canvas.drawBitmap(sprite, rect.left, rect.top, paint);
         }
 
+        //noinspection PointlessBooleanExpression,ConstantConditions
         if(MainActivity.DEBUG && myPoly.size() >= 4) {
             canvas.drawLine(myPoly.get(0).x, myPoly.get(0).y, myPoly.get(1).x, myPoly.get(1).y, redPaint);
             canvas.drawLine(myPoly.get(1).x, myPoly.get(1).y, myPoly.get(2).x, myPoly.get(2).y, redPaint);

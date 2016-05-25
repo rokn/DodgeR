@@ -3,17 +3,23 @@ package com.wordpress.amindov.dodgerinio;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.RectF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.WindowManager;
 
 /**
  * Created by Antonio Mindov on 5/22/2016.
@@ -25,13 +31,15 @@ public class GameView extends SurfaceView implements Runnable, SensorEventListen
     private SensorManager sensorManager;
     private Thread gameThread;
     private SurfaceHolder holder;
+    protected RectF displayRect;
     private Canvas canvas;
     private State currState;
     private int clearColor;
     private SharedPreferences preferences;
     private MainActivity owner;
+    private Bitmap background;
 
-    volatile boolean playing;
+    private volatile boolean playing;
 
     public GameView(MainActivity context, SharedPreferences prefs) {
         super(context);
@@ -45,6 +53,13 @@ public class GameView extends SurfaceView implements Runnable, SensorEventListen
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         preferences = prefs;
+        background = BitmapFactory.decodeResource(getResources(), R.drawable.back);
+
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        displayRect = new RectF(0, 0, size.x, size.y);
     }
 
     @Override
@@ -79,6 +94,7 @@ public class GameView extends SurfaceView implements Runnable, SensorEventListen
             canvas = holder.lockCanvas();
 
             canvas.drawColor(clearColor);
+            canvas.drawBitmap(background, null, displayRect, null);
 
             if(currState != null && currState.isCreated()) {
                 currState.draw(canvas);
@@ -138,5 +154,9 @@ public class GameView extends SurfaceView implements Runnable, SensorEventListen
 
     public void showToast(final String toast) {
         owner.showToast(toast);
+    }
+
+    public RectF getDisplayRect() {
+        return displayRect;
     }
 }

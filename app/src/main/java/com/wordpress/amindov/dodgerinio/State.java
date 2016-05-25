@@ -2,6 +2,8 @@ package com.wordpress.amindov.dodgerinio;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.RectF;
@@ -24,7 +26,6 @@ public abstract class State {
     public String TAG = getClass().getName();
 
     protected GameView owner;
-    protected RectF displayRect;
     private LinkedList<GameObject> gameObjects;
     private List<GameObject> addList;
     private List<GameObject> removeList;
@@ -36,19 +37,12 @@ public abstract class State {
         addList = new ArrayList<>();
         removeList = new ArrayList<>();
         created = false;
-
-        WindowManager wm = (WindowManager) owner.getContext().getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        displayRect = new RectF(0, 0, size.x, size.y);
     }
 
     public void create() {
 //        for (GameObject obj : gameObjects) {
 //            obj.create();
 //        }
-
         created = true;
     }
 
@@ -122,7 +116,7 @@ public abstract class State {
     }
 
     public RectF getDisplayRect() {
-        return displayRect;
+        return owner.getDisplayRect();
     }
 
     public List<GameObject> getGameObjects(Predicate<GameObject> predicate) {

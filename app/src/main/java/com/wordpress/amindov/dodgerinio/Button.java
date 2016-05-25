@@ -102,8 +102,8 @@ public class Button extends Transformable implements ClickNotifier{
     }
 
     public void setInCenter(PointF offset) {
-        float x = owner.displayRect.width()/2 - rect.width()/2 + offset.x;
-        float y = owner.displayRect.height()/2 - rect.height()/2 + offset.y;
+        float x = owner.getDisplayRect().width()/2 - rect.width()/2 + offset.x;
+        float y = owner.getDisplayRect().height()/2 - rect.height()/2 + offset.y;
         setPosition(new PointF(x, y));
     }
 

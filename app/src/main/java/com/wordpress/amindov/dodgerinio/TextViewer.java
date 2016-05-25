@@ -24,6 +24,7 @@ public class TextViewer extends GameObject{
         textPaint.setColor(Color.WHITE);
         text = "";
         position = new PointF();
+        setTextAlign(Paint.Align.CENTER);
     }
 
     @Override
@@ -68,5 +69,13 @@ public class TextViewer extends GameObject{
 
     public void setColor(int color) {
         textPaint.setColor(color);
+    }
+
+    public void setTextSize(float size) {
+        textPaint.setTextSize(size);
+    }
+
+    public void setTextAlign(Paint.Align align) {
+        textPaint.setTextAlign(align);
     }
 }
