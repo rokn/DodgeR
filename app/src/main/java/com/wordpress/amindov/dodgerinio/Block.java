@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -21,6 +22,7 @@ public class Block extends Transformable{
     private static float MinSide = 50.0f;
 
     private boolean entered;
+    private Paint paint;
     private Paint redPaint;
     private float screenPercent;
     private boolean vertical;
@@ -30,6 +32,7 @@ public class Block extends Transformable{
     private float offset;
 
     public Block(float percent, boolean mirror, float offset, PointF velocity) {
+        paint = new Paint();
         entered = false;
         screenPercent = percent;
 
@@ -106,6 +109,8 @@ public class Block extends Transformable{
             sprite = DefaultBlockSprite.copy(DefaultBlockSprite.getConfig(), false);
             updateSprite();
         }
+
+        setColor(Color.argb(255,220,30,30));
     }
 
     public static void loadBlocks(Resources resources) {
@@ -128,7 +133,7 @@ public class Block extends Transformable{
     @Override
     public void draw(Canvas canvas) {
         if(!isScoreBlock()) {
-            canvas.drawBitmap(sprite, rect.left, rect.top, null);
+            canvas.drawBitmap(sprite, rect.left, rect.top, paint);
         }
 
         if(MainActivity.DEBUG) {
@@ -161,5 +166,9 @@ public class Block extends Transformable{
 
     public void setScoreBlock(boolean scoreBlock) {
         this.scoreBlock = scoreBlock;
+    }
+
+    public void setColor(int color) {
+        paint.setColorFilter(new LightingColorFilter(color, 0));
     }
 }

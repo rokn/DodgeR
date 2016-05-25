@@ -1,6 +1,7 @@
 package com.wordpress.amindov.dodgerinio;
 
 import android.content.pm.ActivityInfo;
+import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +14,7 @@ public class MainActivity extends AppCompatActivity {
     public final static boolean DEBUG = false;
 
     private GameView gameView;
+    private MediaPlayer soundTrackPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +23,11 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        soundTrackPlayer = MediaPlayer.create(this, R.raw.dodge_sndtrack);
+        soundTrackPlayer.setVolume(1.0f,1.0f);
+        soundTrackPlayer.setLooping(true);
+        soundTrackPlayer.start();
 
         Block.loadBlocks(getResources());
         gameView = new GameView(this, getPreferences(0));
@@ -32,13 +39,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         gameView.resume();
+        soundTrackPlayer.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         gameView.pause();
-        Log.i(TAG, "Pause");
+        soundTrackPlayer.stop();
     }
 
     public void showToast(final String toast) {
