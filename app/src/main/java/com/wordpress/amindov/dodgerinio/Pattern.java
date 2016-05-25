@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by Antonio Mindov on 5/24/2016.
  */
-public class Pattern {
+public class Pattern{
 
     private class Entry {
         public Entry() {

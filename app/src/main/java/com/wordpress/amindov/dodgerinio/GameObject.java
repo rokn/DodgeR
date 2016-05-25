@@ -2,6 +2,7 @@ package com.wordpress.amindov.dodgerinio;
 
 import android.graphics.Canvas;
 import android.hardware.SensorEvent;
+import android.view.MotionEvent;
 
 /**
  * Created by Antonio Mindov on 5/22/2016.
@@ -29,6 +30,8 @@ public abstract class GameObject {
     }
 
     public abstract void onSensorChanged(SensorEvent event);
+
+    public abstract void onTouchEvent(MotionEvent event);
 
     public State getOwner() {
         return owner;

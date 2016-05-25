@@ -1,10 +1,12 @@
 package com.wordpress.amindov.dodgerinio;
 
+import android.content.pm.ActivityInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,10 +21,11 @@ public class MainActivity extends AppCompatActivity {
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Block.loadBlocks(getResources());
-        gameView = new GameView(this);
-        gameView.changeState(new GameState(gameView));
+        gameView = new GameView(this, getPreferences(0));
+        gameView.changeState(new MainMenuState(gameView));
         setContentView(gameView);
     }
 
@@ -37,5 +40,13 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         gameView.pause();
         Log.i(TAG, "Pause");
+    }
+
+    public void showToast(final String toast) {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(MainActivity.this, toast, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

@@ -2,6 +2,7 @@ package com.wordpress.amindov.dodgerinio;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -10,6 +11,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -26,19 +28,23 @@ public class GameView extends SurfaceView implements Runnable, SensorEventListen
     private Canvas canvas;
     private State currState;
     private int clearColor;
+    private SharedPreferences preferences;
+    private MainActivity owner;
 
     volatile boolean playing;
 
-    public GameView(Context context) {
+    public GameView(MainActivity context, SharedPreferences prefs) {
         super(context);
         holder = getHolder();
         playing = true;
         currState = null;
         clearColor = Color.parseColor(getContext().getString(R.string.clearColor));
+        owner = context;
 
         // Register
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        preferences = prefs;
     }
 
     @Override
@@ -63,7 +69,7 @@ public class GameView extends SurfaceView implements Runnable, SensorEventListen
     }
 
     public void update(float deltaTime) {
-        if(currState != null) {
+        if(currState != null && currState.isCreated()) {
             currState.update(deltaTime);
         }
     }
@@ -74,7 +80,7 @@ public class GameView extends SurfaceView implements Runnable, SensorEventListen
 
             canvas.drawColor(clearColor);
 
-            if(currState != null) {
+            if(currState != null && currState.isCreated()) {
                 currState.draw(canvas);
             }
 
@@ -118,5 +124,19 @@ public class GameView extends SurfaceView implements Runnable, SensorEventListen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        currState.onTouchEvent(event);
+        return true;
+    }
+
+    public SharedPreferences getPreferences() {
+        return preferences;
+    }
+
+    public void showToast(final String toast) {
+        owner.showToast(toast);
     }
 }

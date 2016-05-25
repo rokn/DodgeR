@@ -1,6 +1,7 @@
 package com.wordpress.amindov.dodgerinio;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.Log;
@@ -8,14 +9,14 @@ import android.util.Log;
 /**
  * Created by Antonio Mindov on 5/22/2016.
  */
-public class GameState extends State implements Observer{
+public class GameState extends State{
 
     public String TAG = getClass().getName();
 
     private Player player;
+    private PatternPlayer patternPlayer;
     private boolean gameOver = false;
-    private Pattern currPattern;
-    private ScoreNotifier scoreNotifier;
+    Button reset;
 
     public GameState(GameView owner) {
         super(owner);
@@ -26,49 +27,71 @@ public class GameState extends State implements Observer{
 
         player = new Player();
         addGameObject(player);
-        scoreNotifier = player;
-        scoreNotifier.attach(this);
 
-        currPattern = new Pattern();
+        patternPlayer = new PatternPlayer(this);
+        patternPlayer.setObserver(player);
+
+        Pattern currPattern = new Pattern();
         currPattern.setMultiplier(1.0f);
         currPattern.addEntry(75.0f, new PointF(0.0f, -50.0f), new PointF(0.0f, 300.0f), 0.0f, false);
-        currPattern.addEntry(75.0f, new PointF(0.0f, -50.0f), new PointF(0.0f, 300.0f), 0.0f, true);
-//        currPattern.addEntry(50.0f, new PointF(300.0f, -50.0f), new PointF(0.0f, 300.0f), 0.0f);
-//        currPattern.addEntry(50.0f, new PointF(160.0f, -150.0f), new PointF(0.0f, 300.0f), 0.0f);
-//        currPattern.addEntry(50.0f, new PointF(460.0f, -150.0f), new PointF(0.0f, 300.0f), 0.0f);
-//        currPattern.addEntry(50.0f, new PointF(120.0f, -250.0f), new PointF(0.0f, 300.0f), 0.0f);
-//        currPattern.addEntry(50.0f, new PointF(420.0f, -250.0f), new PointF(0.0f, 300.0f), 0.0f);
-        currPattern.play(this);
+        currPattern.addEntry(75.0f, new PointF(0.0f, -60.0f), new PointF(0.0f, 300.0f), 0.0f, true);
+        patternPlayer.addPattern(currPattern);
+
+        final ScoreViewer scoreText = new ScoreViewer();
+        scoreText.setNotifier(player);
+        addGameObject(scoreText);
 
         gameOver = false;
+
+        reset = new Button(0);
+
+        reset.attach(new Observer() {
+            @Override
+            public void updateObserver() {
+                player.reset();
+                reset.hide();
+                gameOver = false;
+            }
+        });
+
+        addGameObject(reset);
+        reset.setInCenter(new PointF(0,0));
+        reset.hide();
 
         super.create();
     }
 
     @Override
     public void update(float deltaTime) {
-        super.update(deltaTime);
 
-        if(currPattern.isDone()) {
-            currPattern.play(this);
-        }
+        patternPlayer.update(deltaTime);
 
         if(!RectF.intersects(displayRect, player.getRect()) && !gameOver) {
             gameOver = true;
             goHome();
         }
+
+        super.update(deltaTime);
     }
 
     public void goHome() {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        owner.getContext().startActivity(intent);
+        reset.show();
+        updateHighscore(player.getScore());
+        player.hide();
     }
 
-    @Override
-    public void updateObserver() {
-        int newScore = scoreNotifier.getScore();
-        Log.i(TAG, Integer.toString(newScore));
+    private boolean updateHighscore(int score) {
+        SharedPreferences prefs = owner.getPreferences();
+        boolean changed = false;
+
+        if(prefs.getInt("HighScore", 0) < score) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt("HighScore", score);
+            editor.apply();
+            changed = true;
+            Log.d(TAG, "Changed");
+        }
+
+        return changed;
     }
 }

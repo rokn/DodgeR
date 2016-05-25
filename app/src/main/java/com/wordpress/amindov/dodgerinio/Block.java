@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.hardware.SensorEvent;
+import android.view.MotionEvent;
 
 /**
  * Created by Antonio Mindov on 5/23/2016.
@@ -51,17 +52,19 @@ public class Block extends Transformable{
         if(vertical) {
             if(isScoreBlock()) {
                 width = owner.getDisplayRect().width();
+                height = 1;
             } else {
                 width = owner.getDisplayRect().width() * screenPercent / 100.0f;
+                height = MinSide;
             }
 
-            height = MinSide;
         } else {
-            width = MinSide;
 
             if(isScoreBlock()) {
+                width = 1;
                 height = owner.getDisplayRect().height();
             } else {
+                width = MinSide;
                 height = owner.getDisplayRect().width() * screenPercent / 100.0f;
             }
         }
@@ -110,6 +113,11 @@ public class Block extends Transformable{
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+
+    }
+
+    @Override
+    public void onTouchEvent(MotionEvent event) {
 
     }
 

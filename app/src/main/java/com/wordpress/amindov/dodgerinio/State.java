@@ -8,6 +8,7 @@ import android.graphics.RectF;
 import android.hardware.SensorEvent;
 import android.util.Log;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.WindowManager;
 
 import com.android.internal.util.Predicate;
@@ -20,37 +21,42 @@ import java.util.List;
  * Created by Antonio Mindov on 5/22/2016.
  */
 public abstract class State {
-
     public String TAG = getClass().getName();
 
     protected GameView owner;
     protected RectF displayRect;
     private LinkedList<GameObject> gameObjects;
+    private List<GameObject> addList;
     private List<GameObject> removeList;
-    private boolean created;
+    private volatile boolean created;
 
     public State(GameView owner){
         this.owner = owner;
         gameObjects = new LinkedList<>();
+        addList = new ArrayList<>();
         removeList = new ArrayList<>();
         created = false;
-    }
 
-    public void create() {
         WindowManager wm = (WindowManager) owner.getContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         displayRect = new RectF(0, 0, size.x, size.y);
+    }
 
-        for (GameObject obj : gameObjects) {
-            obj.create();
-        }
+    public void create() {
+//        for (GameObject obj : gameObjects) {
+//            obj.create();
+//        }
 
         created = true;
     }
 
     public void update(float deltaTime) {
+        for (GameObject obj : addList) {
+            gameObjects.addFirst(obj);
+        }
+
         for (GameObject obj : gameObjects) {
             obj.update(deltaTime);
         }
@@ -59,6 +65,7 @@ public abstract class State {
             gameObjects.remove(obj);
         }
 
+        addList.clear();
         removeList.clear();
     }
 
@@ -84,12 +91,19 @@ public abstract class State {
 
     public void addGameObject(GameObject object) {
         object.setOwner(this);
+        object.create();
 
         if(created) {
-            object.create();
+            addList.add(object);
+        } else {
+            gameObjects.addFirst(object);
         }
+    }
 
-        gameObjects.addFirst(object);
+    public void onTouchEvent(MotionEvent event) {
+        for (GameObject obj : gameObjects) {
+            obj.onTouchEvent(event);
+        }
     }
 
     public void removeGameObject(GameObject object) {
@@ -100,6 +114,8 @@ public abstract class State {
     public Resources getResources() {
         return owner.getResources();
     }
+
+    public Context getContext() { return owner.getContext(); }
 
     public GameView getOwner() {
         return owner;
@@ -119,5 +135,9 @@ public abstract class State {
         }
 
         return result;
+    }
+
+    public boolean isCreated() {
+        return created;
     }
 }

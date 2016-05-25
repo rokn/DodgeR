@@ -9,6 +9,8 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
+import android.util.Log;
+import android.view.MotionEvent;
 
 import com.android.internal.util.Predicate;
 
@@ -36,20 +38,18 @@ public class Player extends Transformable implements ScoreNotifier{
     public Player() {
         scoreObservers = new ArrayList<>();
         myPoly = new ArrayList<>(4);
+        paint = new Paint();
+        redPaint = new Paint();
+        redPaint.setColor(Color.parseColor("#FF0000"));
     }
 
     @Override
     public void create() {
         sprite = BitmapFactory.decodeResource(owner.getResources(), R.drawable.player);
-        paint = new Paint();
-        setColor(Color.parseColor(owner.getResources().getString(R.string.playerColor)));
-        redPaint = new Paint();
-        redPaint.setColor(Color.parseColor("#FF0000"));
-        setMaxVelocity(defaultMaxVelocity);
-        PointF center = new PointF(owner.getDisplayRect().width()/2.0f, owner.getDisplayRect().height()/2.0f);
-        rect = new RectF(center.x, center.y, center.x + sprite.getWidth(), center.y + sprite.getHeight());
         radius = sprite.getWidth() / 2.0f;
-        setScore(0);
+        rect = new RectF(0, 0, sprite.getWidth(), sprite.getHeight());
+        setColor(Color.parseColor(owner.getResources().getString(R.string.playerColor)));
+        reset();
     }
 
     @Override
@@ -61,7 +61,9 @@ public class Player extends Transformable implements ScoreNotifier{
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(sprite, rect.left, rect.top, paint);
+        if(!hidden) {
+            canvas.drawBitmap(sprite, rect.left, rect.top, paint);
+        }
 
         if(MainActivity.DEBUG) {
             canvas.drawLine(myPoly.get(0).x, myPoly.get(0).y, myPoly.get(1).x, myPoly.get(1).y, redPaint);
@@ -96,6 +98,11 @@ public class Player extends Transformable implements ScoreNotifier{
 
             setVelocity(newVelocity);
         }
+    }
+
+    @Override
+    public void onTouchEvent(MotionEvent event) {
+
     }
 
     public void setColor(int color) {
@@ -234,5 +241,12 @@ public class Player extends Transformable implements ScoreNotifier{
         for (Observer observer : scoreObservers) {
             observer.updateObserver();
         }
+    }
+
+    public void reset() {
+        setMaxVelocity(defaultMaxVelocity);
+        setScore(0);
+        setPosition(new PointF(owner.getDisplayRect().width()/2.0f, owner.getDisplayRect().height()/2.0f));
+        show();
     }
 }

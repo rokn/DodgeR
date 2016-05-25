@@ -13,9 +13,11 @@ public abstract class Transformable extends GameObject{
     private PointF velocity;
     private float rotation;
     private float maxVelocity;
+    protected boolean hidden;
 
     public Transformable() {
         velocity = new PointF();
+        show();
     }
 
     @Override
@@ -80,5 +82,13 @@ public abstract class Transformable extends GameObject{
             sprite = Bitmap.createScaledBitmap(sprite, (int) rect.width(), (int) rect.height(), false);
             sprite = Helper.RotateBitmap(sprite, rotation);
         }
+    }
+
+    public void show() {
+        hidden = false;
+    }
+
+    public void hide() {
+        hidden = true;
     }
 }
