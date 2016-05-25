@@ -17,7 +17,7 @@ public class PatternPlayer implements Observer{
 
     private ScoreNotifier notifier;
     private final int LevelThreshold = 3;
-    private final float LevelMultiplier = 0.02f;
+    private final float LevelMultiplier = 0.05f;
     private State owner;
 
     public PatternPlayer(State owner) {

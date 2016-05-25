@@ -13,14 +13,16 @@ public class Pattern{
     private class Entry {
         public Entry() {
             percentage = 0.0f;
-            position = new PointF();
+            position = 0.0f;
+            mirror = false;
             velocity = new PointF();
             rotation = 0.0f;
             isScore = false;
         }
 
         public float percentage;
-        public PointF position;
+        public float position;
+        public  boolean mirror;
         public PointF velocity;
         public float rotation;
         public  boolean isScore;
@@ -36,10 +38,11 @@ public class Pattern{
         multiplier = 1.0f;
     }
 
-    public void addEntry(float percentage, PointF pos, PointF velocity, float rotation, boolean isScore) {
+    public void addEntry(float percentage, float offset, boolean mirror, PointF velocity, float rotation, boolean isScore) {
         Entry newEntry = new Entry();
         newEntry.percentage = percentage;
-        newEntry.position = pos;
+        newEntry.position = offset;
+        newEntry.mirror = mirror;
         newEntry.velocity = velocity;
         newEntry.rotation = rotation;
         newEntry.isScore = isScore;
@@ -51,7 +54,7 @@ public class Pattern{
             PointF velocity = new PointF();
             velocity.x = entry.velocity.x * multiplier;
             velocity.y = entry.velocity.y * multiplier;
-            Block block = new Block(entry.percentage, entry.position, velocity);
+            Block block = new Block(entry.percentage, entry.mirror, entry.position, velocity);
             block.setScoreBlock(entry.isScore);
             state.addGameObject(block);
             blocks.add(block);

@@ -20,28 +20,32 @@ public class Block extends Transformable{
     private static Bitmap ScoreBlockSprite;
     private static float MinSide = 50.0f;
 
-    private PointF startPos;
     private boolean entered;
     private Paint redPaint;
     private float screenPercent;
     private boolean vertical;
 
     private boolean scoreBlock;
+    private boolean mirror;
+    private float offset;
 
-    public Block(float percent, PointF position, PointF velocity) {
-        startPos = position;
+    public Block(float percent, boolean mirror, float offset, PointF velocity) {
         entered = false;
         screenPercent = percent;
 
-        this.rect = new RectF(position.x, position.y, 0,0);
         setMaxVelocity(Math.max(velocity.x, velocity.y));
         setVelocity(velocity);
         setRotation(0);
 
         vertical = Math.abs(velocity.x) < Math.abs(velocity.y);
 
+        this.rect = new RectF(0.0f,0.0f,0.0f,0.0f);
+
         redPaint = new Paint();
         redPaint.setColor(Color.parseColor("#FF0000"));
+
+        this.mirror = mirror;
+        this.offset = offset;
     }
 
     @Override
@@ -50,22 +54,48 @@ public class Block extends Transformable{
         float height;
 
         if(vertical) {
+            height = MinSide;
+
             if(isScoreBlock()) {
                 width = owner.getDisplayRect().width();
-                height = 1;
             } else {
                 width = owner.getDisplayRect().width() * screenPercent / 100.0f;
-                height = MinSide;
+
+                if(mirror) {
+                    rect.left = owner.getDisplayRect().width() - width;
+                }
             }
 
+            if(getVelocity().y > 0) {
+                rect.top = -offset - height;
+            } else {
+                rect.top = owner.getDisplayRect().height() + offset;
+            }
+
+            if(isScoreBlock()) {
+                height = 1;
+            }
         } else {
+            width = MinSide;
+
+            if(isScoreBlock()) {
+                height = owner.getDisplayRect().height();
+            } else {
+                height = owner.getDisplayRect().height() * screenPercent / 100.0f;
+
+                if(mirror) {
+                    rect.top = owner.getDisplayRect().height() - height;
+                }
+            }
+
+            if(getVelocity().x > 0) {
+                rect.left = -offset - width;
+            } else {
+                rect.left = owner.getDisplayRect().width() + offset;
+            }
 
             if(isScoreBlock()) {
                 width = 1;
-                height = owner.getDisplayRect().height();
-            } else {
-                width = MinSide;
-                height = owner.getDisplayRect().width() * screenPercent / 100.0f;
             }
         }
 

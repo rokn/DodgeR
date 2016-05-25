@@ -32,9 +32,9 @@ public class GameState extends State{
         patternPlayer.setObserver(player);
 
         Pattern currPattern = new Pattern();
-        currPattern.setMultiplier(1.0f);
-        currPattern.addEntry(75.0f, new PointF(0.0f, -50.0f), new PointF(0.0f, 300.0f), 0.0f, false);
-        currPattern.addEntry(75.0f, new PointF(0.0f, -60.0f), new PointF(0.0f, 300.0f), 0.0f, true);
+        currPattern.addEntry(25.0f, 50.0f, true, new PointF(0.0f, 300.0f), 0.0f, false);
+        currPattern.addEntry(0f, 50.0f, false, new PointF(0.0f, 300.0f), 0.0f, true);
+        currPattern.addEntry(25.0f, 50.0f, false,  new PointF(0.0f, 300.0f), 0.0f, false);
         patternPlayer.addPattern(currPattern);
 
         final ScoreViewer scoreText = new ScoreViewer();
